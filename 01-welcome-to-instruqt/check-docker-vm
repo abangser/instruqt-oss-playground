@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eux
+
+echo "Checking if the example file was successfully saved."
+
+if grep -q "other side" /root/lesson-one-playground/file.txt
+then
+    # Leave uncommented for free plan, comment in for instructor led
+    exit 0
+
+    test -f ~/not-so-fast && exit 0
+    exit 99
+else
+    fail-message "The words 'other side' are not in the example txt file. Did you edit and save the file successfully?"
+fi

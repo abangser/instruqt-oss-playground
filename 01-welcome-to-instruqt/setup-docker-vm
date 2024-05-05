@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -euo pipefail
+
+mkdir /root/lesson-one-playground
+cat >> /root/lesson-one-playground/example.txt <<EOF
+👋 hello from your editor
+EOF

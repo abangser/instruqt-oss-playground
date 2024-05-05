@@ -1,0 +1,67 @@
+#!/bin/bash
+set -euxo pipefail
+
+# echo "---> Wait for the Instruqtlinux bootstrap to finish"
+# while [ ! -f /opt/instruqt/bootstrap/host-bootstrap-completed ]
+# do
+#     echo "---> Waiting for Instruqt to finish booting the virtual machine"
+#     sleep 1
+# done
+
+echo "---> Install some useful command line tools"
+apt update
+apt install -y bash-completion libnss3-tools vim
+snap install tree
+snap install yq
+
+echo "---> Install Kubernetes and include bash completion"
+KUBECTL_VERSION="v1.26.3"
+curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+mv kubectl /usr/bin
+chmod +x /usr/bin/kubectl
+/usr/bin/kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
+bashrc="/root/.bashrc"
+cat >> $bashrc <<EOF
+source /usr/share/bash-completion/bash_completion
+
+alias k=kubectl
+alias kaf="kubectl apply -f"
+complete -o default -F __start_kubectl k
+
+export CHROME_BIN_PATH=/usr/bin/google-chrome
+EOF
+
+echo "---> Install Kubefirst CLI and its dependencies: https://docs.kubefirst.io/civo/quick-start/install/cli/"
+KUBEFIRST_VERSION="2.4.8"
+curl -LO "https://github.com/kubefirst/kubefirst/releases/download/v${KUBEFIRST_VERSION}/kubefirst_${KUBEFIRST_VERSION}_linux_amd64.tar.gz"
+tar --overwrite -xvf kubefirst_${KUBEFIRST_VERSION}_linux_amd64.tar.gz -C /usr/local/bin/ kubefirst
+chmod +x /usr/local/bin/kubefirst
+
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+MKCERT_VERSION="v1.4.4"
+curl -JLO "https://dl.filippo.io/mkcert/${MKCERT_VERSION}?for=linux/amd64"
+chmod +x mkcert-v*-linux-amd64
+sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+mkcert -install
+
+K3D_VERSION="v5.6.3"
+wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/${K3D_VERSION}/install.sh | TAG=${K3D_VERSION} bash
+
+ARGOCD_CLI_VERSION="v2.10.9"
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_CLI_VERSION}/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
+
+echo "---> Run a docker container with Chromium to allow browser use"
+docker run -d \
+  --name=chromium \
+  -e PUID=1000 \
+  -e PGID=1000 \
+  -e TZ=Etc/UTC \
+  -p 3098:3000 \
+  -p 3099:3001 \
+  --shm-size="1gb" \
+  --restart unless-stopped \
+  --security-opt seccomp=unconfined \
+  lscr.io/linuxserver/chromium:latest

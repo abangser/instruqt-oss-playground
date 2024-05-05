@@ -1,0 +1,25 @@
+slug: platform-con-2024
+id: zyrvsc9ewpgo
+title: Building an OSS Playground
+teaser: Create a safe and extensible playground for testing platform engineering tools
+  and processes
+description: |-
+  Platforms are complex and interconnected systems. They necessarily depend on shared tools such as Infrastructure as Code implementations, certificate management, secrets management, and more.
+
+  Many tools give you "quick starts" that bypass all of these integrations, but then you can feel bamboozled when it comes to actually tackling key company challenges with that shiny tool you just trialled.
+
+  This workshop will lean on one of the options for bootstrapping a productive Kubernetes cluster to then explore how to move from infrastructure tools to a self-service platform that delivers on-demand business needs.
+icon: https://storage.googleapis.com/instruqt-frontend/img/tracks/default.png
+tags: []
+owner: syntasso
+developers:
+- abby@syntasso.io
+idle_timeout: 300
+timelimit: 12000
+lab_config:
+  overlay: false
+  width: 33
+  position: right
+  feedback_recap_enabled: true
+  loadingMessages: true
+checksum: "18006933447411500508"
